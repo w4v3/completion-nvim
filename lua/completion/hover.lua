@@ -295,7 +295,7 @@ local function handler_function(_, result, ctx, _)
       M.winnr = winnr
 
       if winnr ~= nil and api.nvim_win_is_valid(winnr) then
-        vim.lsp.util.close_preview_autocmd({"CursorMoved", "BufHidden", "InsertCharPre"}, winnr)
+        vim.api.nvim_command(string.format('autocmd CursorMoved, BufHidden, InsertCharPre <buffer> ++once lua pcall(vim.api.nvim_win_close, %d, true)', winnr))
       end
       local hover_len = #vim.api.nvim_buf_get_lines(bufnr,0,-1,false)[1]
       local win_width = vim.api.nvim_win_get_width(0)
