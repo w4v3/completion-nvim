@@ -355,7 +355,7 @@ M.autoOpenHoverInPopup = function()
       else
         local has_hover = false
         for _, value in pairs(vim.lsp.buf_get_clients(0)) do
-          if value.resolved_capabilities.hover then
+          if value.server_capabilities.hoverProvider then
             has_hover = true
             break
           end

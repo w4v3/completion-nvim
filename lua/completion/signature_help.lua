@@ -15,8 +15,7 @@ M.autoOpenSignatureHelp = function()
 
   local triggered
   for _, value in pairs(vim.lsp.buf_get_clients(0)) do
-    if value.resolved_capabilities.signature_help == false or
-      value.server_capabilities.signatureHelpProvider == nil then
+    if value.server_capabilities.signatureHelpProvider == nil then
       return
     end
 
