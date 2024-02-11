@@ -19,6 +19,18 @@ local function sort_completion_items(items)
   end)
 end
 
+local function parse_snippet(input)
+  local ok, parsed = pcall(function()
+    return vim.lsp._snippet_grammar.parse(input)
+  end)
+  if not ok then
+    return input
+  end
+
+  return tostring(parsed)
+end
+
+
 local function get_completion_word(item, prefix, suffix)
   if item.textEdit ~= nil and item.textEdit ~= vim.NIL
     and item.textEdit.newText ~= nil and (item.insertTextFormat ~= 2 or vim.fn.exists('g:loaded_vsnip_integ')) then
@@ -35,7 +47,7 @@ local function get_completion_word(item, prefix, suffix)
     or opt.get_option('enable_snippet') == "snippets.nvim" then
       return newText
     else
-      return vim.lsp.util.parse_snippet(newText)
+      return parse_snippet(newText)
     end
   elseif item.insertText ~= nil and item.insertText ~= vim.NIL then
     if not item.insertTextFormat
@@ -43,7 +55,7 @@ local function get_completion_word(item, prefix, suffix)
     or opt.get_option('enable_snippet') == "snippets.nvim" then
       return item.insertText
     else
-      return vim.lsp.util.parse_snippet(item.insertText)
+      return parse_snippet(item.insertText)
     end
   end
   return item.label
@@ -74,8 +86,21 @@ local function get_context_aware_snippets(item, completion_item, line_to_cursor)
   end
 end
 
+local function extract_completion_items(result)
+  if type(result) == 'table' and result.items then
+    -- result is a `CompletionList`
+    return result.items
+  elseif result ~= nil then
+    -- result is `CompletionItem[]`
+    return result
+  else
+    -- result is `null`
+    return {}
+  end
+end
+
 local function text_document_completion_list_to_complete_items(result, params)
-  local items = vim.lsp.util.extract_completion_items(result)
+  local items = extract_completion_items(result)
   if vim.tbl_isempty(items) then
     return {}
   end
